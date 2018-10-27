@@ -6,24 +6,27 @@ import Cockpit from '../components/Cockpit/Cockpit';
 import Aux from '../hoc/Aux';
 import withClass from '../hoc/withClass';
 
+export const AuthContext = React.createContext(false);
+
 class App extends PureComponent {
   constructor(props) {
     super(props);
     console.log('[App.js] Inside Constructor', props);
     this.state = {
       persons: [
-        { id: 'qwe',name: "Shubham", age: "23" },
-        { id: 'sd',name: "Pathik", age: "22" },
-        { id: 'cxv',name: "Kalpesh", age: "26" }
+        { id: 'qwe',name: "Shubham", age: 23 },
+        { id: 'sd',name: "Pathik", age: 22 },
+        { id: 'cxv',name: "Kalpesh", age: 26 }
       ],
       showPersons: false,
-      toggleClicked: 0
+      toggleClicked: 0,
+      authenticated: false,
     };
   }
 
-  componentWillMount() {
-    console.log('[App.js] Inside componentWillMount()');
-  }
+  // componentWillMount() {
+  //   console.log('[App.js] Inside componentWillMount()');
+  // }
 
   componentDidMount() {
     console.log('[App.js] Inside componentDidMount()');
@@ -35,8 +38,18 @@ class App extends PureComponent {
   //         nextState.showPersons !== this.state.showPersons;
   // }
 
-  componentWillUpdate(nextProps, nextState) {
-    console.log('[UPDATE App.js] Inside componentWillUpdate', nextProps, nextState);
+  // componentWillUpdate(nextProps, nextState) {
+  //   console.log('[UPDATE App.js] Inside componentWillUpdate', nextProps, nextState);
+  // }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    console.log('[UPDATE App.js] Inside getDerivedStateFromProps', nextProps, prevState);
+    return prevState;
+  }
+
+  getSnapshotBeforeUpdate() {
+    console.log('[UPDATE App.js] Inside getSnapshotBeforeUpdate');
+    return null;
   }
 
   componentDidUpdate() {
@@ -82,6 +95,10 @@ class App extends PureComponent {
     });
   }
 
+  loginHandler = () => {
+    this.setState({ authenticated: true });
+  }
+
   render() {
     console.log('[App.js] Inside render()');
     let persons = null;
@@ -90,7 +107,7 @@ class App extends PureComponent {
       persons = <Persons
             persons={ this.state.persons }
             changed={ this.nameChangedHandler }
-            clicked={ this.deletePersonHandler } />;
+            clicked={ this.deletePersonHandler }/>;
     }
 
 
@@ -101,8 +118,11 @@ class App extends PureComponent {
           appTitle={ this.props.title }
           showPersons={ this.state.showPersons }
           persons={ this.state.persons }
+          login={ this.loginHandler }
           clicked={ this.togglePersonsHandler }/>
-        { persons }
+        <AuthContext.Provider value={ this.state.authenticated }>
+          { persons }
+        </AuthContext.Provider>
       </Aux>
     );
   }
